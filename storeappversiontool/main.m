@@ -11,15 +11,12 @@ static CFMessagePortRef _serverPort = nil;
 static void ExecutorDidPutResponse(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
     // get response from server
-    const char *message = "GetResponse";
-    CFDataRef reqData, respData = NULL;
-    reqData = CFDataCreate(NULL, (const UInt8 *)message, strlen(message) + 1);
-    
+    CFDataRef respData = NULL;
     SInt32 reqStatus =
         CFMessagePortSendRequest(
             _serverPort,
             0x1114   /* client get response */,
-            reqData  /* request data */,
+            NULL     /* no request data */,
             1.0      /* send timeout */,
             1.0      /* recv timeout */,
             kCFRunLoopDefaultMode /* indicate a two-way message */,
@@ -34,9 +31,8 @@ static void ExecutorDidPutResponse(CFNotificationCenterRef center, void *observe
         CFRelease(respData);
     }
 
-    CFRelease(reqData);
-
     // one-time client, terminate
+    CFMessagePortInvalidate(_serverPort);
     CFRelease(_serverPort);
     exit(0);
 }

@@ -30,9 +30,8 @@ static CFDataRef ServerCallback(
 
     // executor get arguments
     else if (messageID == 0x1112) {
-        if (!_arguments) {
+        if (!_arguments)
             return nil;
-        }
 
         CFDataRef arguments = CFDataCreateCopy(kCFAllocatorDefault, _arguments);
         CFRelease(_arguments);
@@ -54,9 +53,8 @@ static CFDataRef ServerCallback(
 
     // client get response
     else if (messageID == 0x1114) {
-        if (!_response) {
+        if (!_response)
             return nil;
-        }
 
         CFDataRef response = CFDataCreateCopy(kCFAllocatorDefault, _response);
         CFRelease(_response);
@@ -71,15 +69,12 @@ static CFDataRef ServerCallback(
 static void ClientDidPutArguments(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
     // get arguments from server
-    const char *message = "GetArguments";
-    CFDataRef reqData, respData = NULL;
-    reqData = CFDataCreate(NULL, (const UInt8 *)message, strlen(message) + 1);
-    
+    CFDataRef respData = NULL;
     SInt32 reqStatus =
         CFMessagePortSendRequest(
             _serverPort,
             0x1112   /* executor get arguments */,
-            reqData  /* request data */,
+            NULL     /* no request data */,
             1.0      /* send timeout */,
             1.0      /* recv timeout */,
             kCFRunLoopDefaultMode /* indicate a two-way message */,
@@ -112,8 +107,6 @@ static void ClientDidPutArguments(CFNotificationCenterRef center, void *observer
             fprintf(stderr, "CFMessagePortSendRequest %d\n", respStatus);
         }
     }
-
-    CFRelease(reqData);
 }
 
 %ctor {
@@ -135,7 +128,7 @@ static void ClientDidPutArguments(CFNotificationCenterRef center, void *observer
         });
 
         CFRunLoopSourceRef runLoopSource =
-            CFMessagePortCreateRunLoopSource(nil, _serverPort, 0);
+            CFMessagePortCreateRunLoopSource(kCFAllocatorDefault, _serverPort, 0);
 
         CFRunLoopAddSource(
             CFRunLoopGetCurrent(),
