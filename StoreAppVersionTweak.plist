@@ -1,0 +1,14 @@
+{
+    Filter = {
+        Bundles = (
+            "com.apple.springboard",
+            "com.apple.AppStore",
+            "com.apple.appstored",
+            "com.apple.itunesstored"
+        );
+        Executables = (
+            "appstored",
+            "itunesstored"
+        );
+    };
+}
