@@ -24,11 +24,8 @@ static void ExecutorDidPutResponse(CFNotificationCenterRef center, void *observe
         );
     
     if (reqStatus == kCFMessagePortSuccess) {
-
-        NSDictionary *responseDict = [NSPropertyListSerialization propertyListWithData:(__bridge NSData *)respData options:kNilOptions format:nil error:nil];
+        NSDictionary *responseDict = [NSPropertyListSerialization propertyListWithData:CFBridgingRelease(respData) options:kNilOptions format:nil error:nil];
         printf("%s\n", [responseDict[@"reply"] UTF8String]);
-
-        CFRelease(respData);
     }
 
     // one-time client, terminate

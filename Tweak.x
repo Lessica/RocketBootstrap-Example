@@ -83,15 +83,14 @@ static void ClientDidPutArguments(CFNotificationCenterRef center, void *observer
     
     if (reqStatus == kCFMessagePortSuccess) {
 
-        NSDictionary *argumentDict = [NSPropertyListSerialization propertyListWithData:(__bridge NSData *)respData options:kNilOptions format:nil error:nil];
-        CFRelease(respData);
+        NSDictionary *argumentDict = [NSPropertyListSerialization propertyListWithData:CFBridgingRelease(respData) options:kNilOptions format:nil error:nil];
         
         NSDictionary *resultDict = nil;
 
         // do main stuff in executor
         resultDict = @{@"reply": [NSString stringWithFormat: @"Hello %@, I am %@.", argumentDict[@"name"], [[NSBundle mainBundle] bundleIdentifier]]};
 
-        CFDataRef resultData = (__bridge CFDataRef)[NSPropertyListSerialization dataWithPropertyList:resultDict format:NSPropertyListBinaryFormat_v1_0 options:kNilOptions error:nil];
+        CFDataRef resultData = (CFDataRef)CFBridgingRetain([NSPropertyListSerialization dataWithPropertyList:resultDict format:NSPropertyListBinaryFormat_v1_0 options:kNilOptions error:nil]);
         SInt32 respStatus =
             CFMessagePortSendRequest(
                 _serverPort,
@@ -102,6 +101,7 @@ static void ClientDidPutArguments(CFNotificationCenterRef center, void *observer
                 kCFRunLoopDefaultMode /* wait for reply */,
                 NULL                  /* no return value */
             );
+        CFRelease(resultData);
         
         if (respStatus != kCFMessagePortSuccess) {
             fprintf(stderr, "CFMessagePortSendRequest %d\n", respStatus);
